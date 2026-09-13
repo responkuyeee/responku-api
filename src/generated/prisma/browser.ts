@@ -47,3 +47,88 @@ export type Role = Prisma.RoleModel
  * 
  */
 export type UserRole = Prisma.UserRoleModel
+/**
+ * Model Research
+ * 
+ */
+export type Research = Prisma.ResearchModel
+/**
+ * Model ResearchTokenBudget
+ * 
+ */
+export type ResearchTokenBudget = Prisma.ResearchTokenBudgetModel
+/**
+ * Model ResearchCriterion
+ * 
+ */
+export type ResearchCriterion = Prisma.ResearchCriterionModel
+/**
+ * Model ScreeningQuestion
+ * 
+ */
+export type ScreeningQuestion = Prisma.ScreeningQuestionModel
+/**
+ * Model Participation
+ * 
+ */
+export type Participation = Prisma.ParticipationModel
+/**
+ * Model ScreeningAnswer
+ * 
+ */
+export type ScreeningAnswer = Prisma.ScreeningAnswerModel
+/**
+ * Model QualityCheck
+ * 
+ */
+export type QualityCheck = Prisma.QualityCheckModel
+/**
+ * Model Reward
+ * 
+ */
+export type Reward = Prisma.RewardModel
+/**
+ * Model ContentReport
+ * 
+ */
+export type ContentReport = Prisma.ContentReportModel
+/**
+ * Model SupportTicket
+ * 
+ */
+export type SupportTicket = Prisma.SupportTicketModel
+/**
+ * Model AdminReview
+ * 
+ */
+export type AdminReview = Prisma.AdminReviewModel
+/**
+ * Model TokenTransaction
+ * 
+ */
+export type TokenTransaction = Prisma.TokenTransactionModel
+/**
+ * Model Withdrawal
+ * 
+ */
+export type Withdrawal = Prisma.WithdrawalModel
+/**
+ * Model Payment
+ * 
+ */
+export type Payment = Prisma.PaymentModel
+/**
+ * Model Notification
+ * 
+ */
+export type Notification = Prisma.NotificationModel
+/**
+ * Model UserProfile
+ * 
+ */
+export type UserProfile = Prisma.UserProfileModel
+/**
+ * Model TokenWallet
+ * 
+ */
+export type TokenWallet = Prisma.TokenWalletModel

@@ -10,26 +10,187 @@
 */
 
 export const VerificationType = {
-  emailVerification: 'emailVerification',
-  passwordReset: 'passwordReset',
-  orderConfirmation: 'orderConfirmation'
+  EMAIL_VERIFICATION: 'EMAIL_VERIFICATION',
+  PASSWORD_RESET: 'PASSWORD_RESET',
+  ORDER_CONFIRMATION: 'ORDER_CONFIRMATION'
 } as const
 
 export type VerificationType = (typeof VerificationType)[keyof typeof VerificationType]
 
 
 export const RoleName = {
-  user: 'user',
-  admin: 'admin',
-  superadmin: 'superadmin'
+  USER: 'USER',
+  ADMIN: 'ADMIN',
+  SUPERADMIN: 'SUPERADMIN'
 } as const
 
 export type RoleName = (typeof RoleName)[keyof typeof RoleName]
 
 
 export const ProviderId = {
-  credentials: 'credentials',
-  google: 'google'
+  CREDENTIALS: 'CREDENTIALS',
+  GOOGLE: 'GOOGLE'
 } as const
 
 export type ProviderId = (typeof ProviderId)[keyof typeof ProviderId]
+
+
+export const ContentReportStatus = {
+  PENDING: 'PENDING',
+  REVIEWING: 'REVIEWING',
+  RESOLVED: 'RESOLVED',
+  DISMISSED: 'DISMISSED'
+} as const
+
+export type ContentReportStatus = (typeof ContentReportStatus)[keyof typeof ContentReportStatus]
+
+
+export const ContentReportAction = {
+  NONE: 'NONE',
+  WARNING: 'WARNING',
+  SUSPENSION: 'SUSPENSION',
+  BAN: 'BAN',
+  REMOVED_CONTENT: 'REMOVED_CONTENT'
+} as const
+
+export type ContentReportAction = (typeof ContentReportAction)[keyof typeof ContentReportAction]
+
+
+export const SupportTicketCategory = {
+  GENERAL: 'GENERAL',
+  BILLING: 'BILLING',
+  TECHNICAL: 'TECHNICAL',
+  ACCOUNT: 'ACCOUNT'
+} as const
+
+export type SupportTicketCategory = (typeof SupportTicketCategory)[keyof typeof SupportTicketCategory]
+
+
+export const SupportTicketStatus = {
+  OPEN: 'OPEN',
+  IN_PROGRESS: 'IN_PROGRESS',
+  RESOLVED: 'RESOLVED',
+  CLOSED: 'CLOSED'
+} as const
+
+export type SupportTicketStatus = (typeof SupportTicketStatus)[keyof typeof SupportTicketStatus]
+
+
+export const AdminReviewTargetType = {
+  RESEARCH: 'RESEARCH',
+  PARTICIPATION: 'PARTICIPATION',
+  USER: 'USER',
+  PAYMENT: 'PAYMENT',
+  SUPPORT_TICKET: 'SUPPORT_TICKET',
+  CONTENT_REPORT: 'CONTENT_REPORT'
+} as const
+
+export type AdminReviewTargetType = (typeof AdminReviewTargetType)[keyof typeof AdminReviewTargetType]
+
+
+export const AdminReviewAction = {
+  APPROVE: 'APPROVE',
+  REJECT: 'REJECT',
+  HOLD: 'HOLD',
+  ESCALATE: 'ESCALATE'
+} as const
+
+export type AdminReviewAction = (typeof AdminReviewAction)[keyof typeof AdminReviewAction]
+
+
+export const ParticipationStatus = {
+  INVITED: 'INVITED',
+  SCREENING: 'SCREENING',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+  SUBMITTED: 'SUBMITTED',
+  COMPLETED: 'COMPLETED',
+  REWARDED: 'REWARDED'
+} as const
+
+export type ParticipationStatus = (typeof ParticipationStatus)[keyof typeof ParticipationStatus]
+
+
+export const AutoScreeningResult = {
+  PASSED: 'PASSED',
+  FAILED: 'FAILED',
+  PENDING: 'PENDING'
+} as const
+
+export type AutoScreeningResult = (typeof AutoScreeningResult)[keyof typeof AutoScreeningResult]
+
+
+export const WithdrawalStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+} as const
+
+export type WithdrawalStatus = (typeof WithdrawalStatus)[keyof typeof WithdrawalStatus]
+
+
+export const PaymentType = {
+  TOP_UP: 'TOP_UP',
+  RESEARCH_PAYMENT: 'RESEARCH_PAYMENT',
+  REFUND: 'REFUND'
+} as const
+
+export type PaymentType = (typeof PaymentType)[keyof typeof PaymentType]
+
+
+export const PaymentProvider = {
+  MIDTRANS: 'MIDTRANS',
+  XENDIT: 'XENDIT',
+  STRIPE: 'STRIPE',
+  MANUAL: 'MANUAL'
+} as const
+
+export type PaymentProvider = (typeof PaymentProvider)[keyof typeof PaymentProvider]
+
+
+export const PaymentStatus = {
+  PENDING: 'PENDING',
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED',
+  EXPIRED: 'EXPIRED',
+  REFUNDED: 'REFUNDED'
+} as const
+
+export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
+
+
+export const NotificationType = {
+  SYSTEM: 'SYSTEM',
+  TRANSACTION: 'TRANSACTION',
+  RESEARCH_INVITATION: 'RESEARCH_INVITATION',
+  RESEARCH_UPDATE: 'RESEARCH_UPDATE',
+  SUPPORT_TICKET: 'SUPPORT_TICKET',
+  WITHDRAWAL_UPDATE: 'WITHDRAWAL_UPDATE'
+} as const
+
+export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
+
+
+export const TokenTransactionType = {
+  RESEARCH_PAYMENT: 'RESEARCH_PAYMENT',
+  RESPONDENT_REWARD: 'RESPONDENT_REWARD',
+  PLATFORM_FEE: 'PLATFORM_FEE',
+  TOP_UP: 'TOP_UP',
+  REFUND: 'REFUND',
+  ADJUSTMENT: 'ADJUSTMENT'
+} as const
+
+export type TokenTransactionType = (typeof TokenTransactionType)[keyof typeof TokenTransactionType]
+
+
+export const GenderType = {
+  MALE: 'MALE',
+  FEMALE: 'FEMALE',
+  OTHER: 'OTHER',
+  PREFER_NOT_TO_SAY: 'PREFER_NOT_TO_SAY'
+} as const
+
+export type GenderType = (typeof GenderType)[keyof typeof GenderType]
