@@ -1,0 +1,234 @@
+enum ContentReportStatus {
+  PENDING
+  REVIEWING
+  RESOLVED
+  DISMISSED
+}
+
+enum ContentReportAction {
+  NONE
+  WARNING
+  SUSPENSION
+  BAN
+  REMOVED_CONTENT
+}
+
+enum SupportTicketCategory {
+  GENERAL
+  BILLING
+  TECHNICAL
+  ACCOUNT
+}
+
+enum SupportTicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum AdminReviewTargetType {
+  RESEARCH
+  PARTICIPATION
+  USER
+  PAYMENT
+  SUPPORT_TICKET
+  CONTENT_REPORT
+}
+
+enum AdminReviewAction {
+  APPROVE
+  REJECT
+  HOLD
+  ESCALATE
+}
+
+enum ParticipationStatus {
+  INVITED
+  SCREENING
+  ACCEPTED
+  REJECTED
+  SUBMITTED
+  COMPLETED
+  REWARDED
+}
+
+enum AutoScreeningResult {
+  PASSED
+  FAILED
+  PENDING
+}
+
+model Research {
+  id                       String    @id @default(uuid())
+  researcherId             String    @map("researcher_id")
+  title                    String    @db.VarChar(255)
+  description              String
+  externalSurveyUrl        String    @map("external_survey_url")
+  targetRespondentCount    Int       @map("target_respondent_count")
+  estimatedDurationMinutes Int       @map("estimated_duration_minutes")
+  deadline                 DateTime
+  status                   String    @db.VarChar(30)
+  publishedAt              DateTime? @map("published_at")
+
+  researcher          User                 @relation("ResearcherToResearch", fields: [researcherId], references: [id], onDelete: Cascade)
+  researchTokenBudget ResearchTokenBudget? @relation("ResearchToResearchTokenBudget")
+  researchCriterions  ResearchCriterion[]  @relation("ResearchToResearchCriterion")
+  screeningQuestions  ScreeningQuestion[]  @relation("ResearchToScreeningQuestion")
+  participations      Participation[]      @relation("ResearchToParticipation")
+  tokenTransactions   TokenTransaction[]   @relation("ResearchToTokenTransaction")
+  contentReports      ContentReport[]      @relation("ResearchToContentReport")
+
+  @@map("researches")
+}
+
+model ResearchTokenBudget {
+  id                      String  @id @default(uuid())
+  researchId              String  @unique @map("research_id")
+  totalTokenAmount        Decimal @map("total_token_amount") @db.Decimal(12, 2)
+  respondentPoolAmount    Decimal @map("respondent_pool_amount") @db.Decimal(12, 2)
+  platformFeeAmount       Decimal @map("platform_fee_amount") @db.Decimal(12, 2)
+  rewardPerRespondent     Decimal @map("reward_per_respondent") @db.Decimal(12, 2)
+  consumedRespondentToken Decimal @map("consumed_respondent_token") @db.Decimal(12, 2)
+  consumedPlatformToken   Decimal @map("consumed_platform_token") @db.Decimal(12, 2)
+
+  research Research @relation("ResearchToResearchTokenBudget", fields: [researchId], references: [id], onDelete: Cascade)
+
+  @@map("research_token_budgets")
+}
+
+model ResearchCriterion {
+  id         String @id @default(uuid())
+  researchId String @map("research_id")
+  field      String @db.VarChar(50)
+  operator   String @db.VarChar(20)
+  value      String
+
+  research Research @relation("ResearchToResearchCriterion", fields: [researchId], references: [id], onDelete: Cascade)
+
+  @@map("research_criterions")
+}
+
+model ScreeningQuestion {
+  id                String @id @default(uuid())
+  researchId        String @map("research_id")
+  questionText      String @map("question_text") @db.Text
+  questionJson      Json?  @map("question_json")
+  scoringWeight     Int    @map("scoring_weight")
+  scoringWeightJson Json?  @map("scoring_weight_json")
+  passThreshold     Int    @map("pass_threshold")
+
+  research         Research          @relation("ResearchToScreeningQuestion", fields: [researchId], references: [id], onDelete: Cascade)
+  screeningAnswers ScreeningAnswer[] @relation("ScreeningQuestionToScreeningAnswer")
+
+  @@map("screening_questions")
+}
+
+model Participation {
+  id                  String              @id @default(uuid())
+  researchId          String              @map("research_id")
+  respondentId        String              @map("respondent_id")
+  status              ParticipationStatus
+  screeningScore      Int?                @map("screening_score")
+  submittedAt         DateTime?           @map("submitted_at")
+  autoScreeningResult String?             @map("auto_screening_result")
+  adminReviewedBy     String?             @map("admin_reviewed_by")
+  adminReviewedAt     DateTime?           @map("admin_reviewed_at")
+  holdReleasedAt      DateTime?           @map("hold_released_at")
+  rewardedAt          DateTime?           @map("rewarded_at")
+
+  research          Research           @relation("ResearchToParticipation", fields: [researchId], references: [id])
+  respondent        User               @relation("RespondentParticipations", fields: [respondentId], references: [id])
+  admin             User?              @relation("AdminReviewedParticipations", fields: [adminReviewedBy], references: [id])
+  screeningAnswers  ScreeningAnswer[]  @relation("ParticipationToScreeningAnswer")
+  qualityChecks     QualityCheck[]     @relation("ParticipationToQualityCheck")
+  reward            Reward?            @relation("ParticipationToReward")
+  tokenTransactions TokenTransaction[] @relation("ParticipationToTokenTransaction")
+
+  @@map("participations")
+}
+
+model ScreeningAnswer {
+  id                  String @id @default(uuid())
+  participationId     String @map("participation_id")
+  screeningQuestionId String @map("screening_question_id")
+  answer              String @db.Text
+  score               Int
+
+  participation     Participation     @relation("ParticipationToScreeningAnswer", fields: [participationId], references: [id])
+  screeningQuestion ScreeningQuestion @relation("ScreeningQuestionToScreeningAnswer", fields: [screeningQuestionId], references: [id])
+
+  @@map("screening_answers")
+}
+
+model QualityCheck {
+  id              String   @id @default(uuid())
+  participationId String   @map("participation_id")
+  signalFlags     Json?    @map("signal_flags")
+  autoScore       Decimal? @map("auto_score") @db.Decimal(5, 2)
+  reviewedBy      String?  @map("reviewed_by")
+  decision        String?  @db.VarChar(20)
+
+  participation Participation @relation("ParticipationToQualityCheck", fields: [participationId], references: [id])
+
+  @@map("quality_check")
+}
+
+model Reward {
+  id              String    @id @default(uuid())
+  participationId String    @unique @map("participation_id")
+  tokenAmount     Decimal   @map("token_amount") @db.Decimal(12, 2)
+  status          String
+  paidAt          DateTime? @map("paid_at")
+
+  participation Participation @relation("ParticipationToReward", fields: [participationId], references: [id])
+
+  @@map("rewards")
+}
+
+model ContentReport {
+  id          String               @id @default(uuid())
+  researchId  String               @map("research_id")
+  reportedBy  String?              @map("reported_by")
+  reason      String               @db.Text
+  status      ContentReportStatus
+  reviewedBy  String?              @map("reviewed_by")
+  actionTaken ContentReportAction? @map("action_taken")
+
+  research Research @relation("ResearchToContentReport", fields: [researchId], references: [id])
+
+  reporter User? @relation("ContentReportReporter", fields: [reportedBy], references: [id])
+  reviewer User? @relation("ContentReportReviewer", fields: [reviewedBy], references: [id])
+
+  @@map("content_report")
+}
+
+model SupportTicket {
+  id          String                @id @default(uuid())
+  userId      String                @map("user_id")
+  category    SupportTicketCategory
+  subject     String                @db.VarChar(255)
+  description String                @db.Text
+  status      SupportTicketStatus
+  assignedTo  String?               @map("assigned_to")
+  resolvedAt  DateTime?             @map("resolved_at")
+
+  user      User  @relation("SupportTicketUser", fields: [userId], references: [id])
+  assigneed User? @relation("SupportTicketAssignee", fields: [assignedTo], references: [id])
+
+  @@map("support_ticket")
+}
+
+model AdminReview {
+  id         String                @id @default(uuid())
+  adminId    String                @map("admin_id")
+  adminRole  RoleName              @map("admin_role")
+  targetType AdminReviewTargetType @map("target_type")
+  targetId   String                @map("target_id")
+  action     AdminReviewAction
+  note       String?               @db.Text
+
+  admin User @relation("AdminReviewAdmin", fields: [adminId], references: [id])
+
+  @@map("admin_review")
+}

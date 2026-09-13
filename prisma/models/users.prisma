@@ -1,21 +1,39 @@
+enum GenderType {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
 model UserProfile {
-    id                 String     @id @default(uuid())
-    userId             String     @unique @map("user_id")
-    gender             GenderType
-    religion           String?
-    religionConsentAt  DateTime?  @map("religion_consent_at")
-    domicileProvince   String?    @map("domicile_province")
-    domicileCity       String?    @map("domicile_city")
-    domicileLatitude   String?    @map("domicile_latitude")
-    domicileLongitude  String?    @map("domicile_longitude")
-    domicileVerifiedAt DateTime?  @map("domicile_verified_at")
-    education          String?
-    occupation         String?
-    dataShareConsentAt DateTime?  @map("data_share_consent_at")
-    createdAt          DateTime   @default(now()) @map("created_at")
-    updatedAt          DateTime   @updatedAt @map("updated_at")
+  id                 String     @id @default(uuid())
+  userId             String     @unique @map("user_id")
+  gender             GenderType
+  religion           String?
+  religionConsentAt  DateTime?  @map("religion_consent_at")
+  domicileProvince   String?    @map("domicile_province")
+  domicileCity       String?    @map("domicile_city")
+  domicileLatitude   String?    @map("domicile_latitude")
+  domicileLongitude  String?    @map("domicile_longitude")
+  domicileVerifiedAt DateTime?  @map("domicile_verified_at")
+  education          String?
+  occupation         String?
+  dataShareConsentAt DateTime?  @map("data_share_consent_at")
+  createdAt          DateTime   @default(now()) @map("created_at")
+  updatedAt          DateTime   @updatedAt @map("updated_at")
 
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation("UserToUserProfile", fields: [userId], references: [id], onDelete: Cascade)
 
-    @@map("user_profiles")
+  @@map("user_profiles")
+}
+
+model TokenWallet {
+  id           String  @id @default(uuid())
+  userId       String  @unique @map("user_id")
+  tokenBalance Decimal @map("token_balance") @db.Decimal(12, 2)
+
+  user              User               @relation("UserToTokenWallet", fields: [userId], references: [id], onDelete: Cascade)
+  tokenTransactions TokenTransaction[] @relation("TokenWalletToTokenTransaction")
+
+  @@map("token_wallets")
 }

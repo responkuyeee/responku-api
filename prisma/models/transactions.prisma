@@ -1,0 +1,107 @@
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum PaymentType {
+  TOP_UP
+  RESEARCH_PAYMENT
+  REFUND
+}
+
+enum PaymentProvider {
+  MIDTRANS
+  XENDIT
+  STRIPE
+  MANUAL
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  EXPIRED
+  REFUNDED
+}
+
+enum NotificationType {
+  SYSTEM
+  TRANSACTION
+  RESEARCH_INVITATION
+  RESEARCH_UPDATE
+  SUPPORT_TICKET
+  WITHDRAWAL_UPDATE
+}
+
+enum TokenTransactionType {
+  RESEARCH_PAYMENT
+  RESPONDENT_REWARD
+  PLATFORM_FEE
+  TOP_UP
+  REFUND
+  ADJUSTMENT
+}
+
+model TokenTransaction {
+  id              String               @id @default(uuid())
+  walletId        String               @map("wallet_id")
+  researchId      String?              @map("research_id")
+  participationId String?              @map("participation_id")
+  transactionType TokenTransactionType @map("transaction_type")
+  amount          Decimal              @db.Decimal(12, 2)
+  referenceId     String?              @map("reference_id") @db.VarChar(255)
+
+  wallet        TokenWallet    @relation("TokenWalletToTokenTransaction", fields: [walletId], references: [id])
+  research      Research?      @relation("ResearchToTokenTransaction", fields: [researchId], references: [id])
+  participation Participation? @relation("ParticipationToTokenTransaction", fields: [participationId], references: [id])
+
+  @@map("token_transactions")
+}
+
+model Withdrawal {
+  id                 String           @id @default(uuid())
+  userId             String           @map("user_id")
+  tokenAmount        Int              @map("token_amount")
+  feePercentage      Decimal          @map("fee_percentage") @db.Decimal(4, 2)
+  netAmountIdr       Decimal          @map("net_amount_idr") @db.Decimal(12, 2)
+  status             WithdrawalStatus
+  approvedBy         String?          @map("approved_by")
+  paymentProviderRef String?          @map("payment_provider_ref") @db.VarChar(255)
+  processedAt        DateTime?        @map("processed_at")
+
+  user     User  @relation("WithdrawalUser", fields: [userId], references: [id])
+  approver User? @relation("WithdrawalApprover", fields: [approvedBy], references: [id])
+
+  @@map("withdrawal")
+}
+
+model Payment {
+  id             String          @id @default(uuid())
+  userId         String          @map("user_id")
+  type           PaymentType
+  provider       PaymentProvider
+  providerRef    String?         @unique @map("provider_ref") @db.VarChar(255)
+  amountIdr      Decimal         @map("amount_idr") @db.Decimal(12, 2)
+  status         PaymentStatus
+  idempotencyKey String?         @unique @map("idempotency_key") @db.VarChar(255)
+
+  user User @relation("PaymentUser", fields: [userId], references: [id])
+
+  @@map("payment")
+}
+
+model Notification {
+  id      String           @id @default(uuid())
+  userId  String           @map("user_id")
+  type    NotificationType
+  message String           @db.Text
+  readAt  DateTime?        @map("read_at")
+
+  user User @relation("NotificationUser", fields: [userId], references: [id])
+
+  @@map("notification")
+}

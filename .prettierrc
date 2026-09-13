@@ -3,9 +3,5 @@
     "trailingComma": "none",
     "arrowParens": "avoid",
     "tabWidth": 4,
-    "printWidth": 300,
-    "[prisma]": {
-        "editor.tabSize": 4,
-        "editor.defaultFormatter": "Prisma.prisma"
-    }
+    "printWidth": 300
 }
