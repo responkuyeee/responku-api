@@ -36,9 +36,9 @@ export class AuthGuard implements CanActivate {
 }
 
 export enum Role {
-    User = 'user',
-    Admin = 'admin',
-    Superadmin = 'superadmin'
+    User = 'USER',
+    Admin = 'ADMIN',
+    Superadmin = 'SUPERADMIN'
 }
 
 export const ROLES_KEY = 'roles';
