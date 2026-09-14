@@ -7,6 +7,8 @@ import { createObserveModule } from '@nestjs/observe';
 import { AuthModule } from './auth/auth.module.js';
 import { DbModule } from './db/db.module.js';
 import { MailerModule } from './mailer/mailer.module.js';
+import { UsersModule } from './users/users.module.js';
+import { UploadersModule } from './uploaders/uploaders.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -15,13 +17,15 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
         // Distributed tracing, auto-correlated logs, request/job metrics, error
         // telemetry, alarms, and more — out of the box. Sign up at https://observe.nestjs.com
         ConfigModule.forRoot({ isGlobal: true }),
-        ObserveModule.forRoot({ appKey: 'YOUR_APP_KEY', appSecret: 'YOUR_APP_SECRET', serviceId: 'nestjs-start-kit' }),
+        // ObserveModule.forRoot({ appKey: 'YOUR_APP_KEY', appSecret: 'YOUR_APP_SECRET', serviceId: 'nestjs-start-kit' }),
         ThrottlerModule.forRoot({ throttlers: [{ ttl: 60000, limit: 100 }] }),
         ScheduleModule.forRoot(),
         CronModule,
         DbModule,
         MailerModule,
-        AuthModule
+        AuthModule,
+        UsersModule,
+        UploadersModule
     ]
 })
 export class AppModule {}

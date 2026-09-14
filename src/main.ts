@@ -14,8 +14,8 @@ import { HttpResponseInterceptor } from './utils/interceptors.js';
  */
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, {
-        instrument: ObserveInstrument,
-        logger: false
+        instrument: ObserveInstrument
+        // logger: false
     });
 
     app.use(cookieParser());
@@ -35,6 +35,6 @@ async function bootstrap() {
     const documentFactory = () => SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api/docs', app, documentFactory);
 
-    await app.listen(process.env.PORT ?? 3000);
+    await app.listen(process.env.PORT ?? 3001);
 }
 await bootstrap();
