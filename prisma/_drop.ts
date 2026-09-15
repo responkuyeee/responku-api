@@ -5,7 +5,7 @@ async function main() {
     console.log('🗑️ Dropping all tables in the database...');
 
     let host = process.env.DATABASE_HOST ?? 'localhost';
-    
+
     const pool = mariadb.createPool({
         host,
         port: Number(process.env.DATABASE_PORT ?? 3306),
