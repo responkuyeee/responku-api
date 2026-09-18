@@ -3,10 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { addDays, addMinutes, addSeconds } from 'date-fns';
 import { type DbService, dbService } from '../db/db.module.js';
-import { type MailerService, mailerService } from '../mailer/mailer.module.js';
 import createTemplateEmailVerification from '../templates/email-verification.js';
 import { GoogleTokenResponse, GoogleUserInfoResponse, UserSessionData } from '../utils/types.js';
 import { generateOTP, generateTokenWithHash, hashToken } from '../utils/utils.js';
+import { type MailerService, mailerService } from '../mailers/mailer.module.js';
 
 /**
  * Service responsible for managing user authentication, sessions, and verifications.
@@ -34,7 +34,7 @@ export class AuthService {
      * @throws ConflictException if the user already has an account.
      * @throws BadRequestException if the provider is not supported.
      */
-    public async signUp({ name, email, password, providerId }: { name: string; email: string; password: string; providerId: 'CREDENTIALS' | 'GOOGLE' }) {
+    public async signUp({ name, email, password, providerId, phone: _phone, age_declared_18plus: _age_declared_18plus }: { name: string; email: string; password: string; providerId: 'CREDENTIALS' | 'GOOGLE'; phone?: string; age_declared_18plus?: boolean }) {
         const findUser = await this.db.user.findFirst({ where: { email } });
 
         if (findUser !== null) {
@@ -46,7 +46,7 @@ export class AuthService {
              *  --FuturePlan
              *  if account is find, and the providerId is not "credentials"
              *  then just link user account with password
-             * 
+             *
                 if (findAccount !== null && findAccount.providerId !== 'CREDENTIALS') {}
              */
         }
@@ -57,11 +57,18 @@ export class AuthService {
                 data: { userId: newUser.id, password: await bcrypt.hash(password, 10), providerId, accountId: newUser.id }
             });
 
-            const findRole = await tx.role.findFirst({ where: { name: 'USER' } });
-            if (findRole === null) throw new NotFoundException('role is not found');
+            const defaultRoleNames = ['USER', 'RESEARCHER', 'RESPONDENT'] as const;
+            const roles = await tx.role.findMany({ where: { name: { in: [...defaultRoleNames] } } });
+            if (roles.length !== defaultRoleNames.length) throw new NotFoundException('default roles not found');
 
-            await tx.userRole.create({ data: { userId: newUser.id, roleId: findRole.id } });
-            return { userId: newUser.id, name: newUser.name, email: newUser.email, role: findRole.name };
+            await tx.userRole.createMany({ data: roles.map(role => ({ userId: newUser.id, roleId: role.id })) });
+            return {
+                userId: newUser.id,
+                name: newUser.name,
+                email: newUser.email,
+                role: 'USER',
+                roles: roles.map(r => r.name)
+            };
         });
 
         const rawOtp = generateOTP();
@@ -74,12 +81,7 @@ export class AuthService {
         });
 
         await this.db.verification.create({
-            data: {
-                userId: newUserAccount.userId,
-                type: 'EMAIL_VERIFICATION',
-                tokenHash: hashedOtp,
-                expiredAt: addMinutes(new Date(), 15)
-            }
+            data: { userId: newUserAccount.userId, type: 'EMAIL_VERIFICATION', tokenHash: hashedOtp, expiredAt: addMinutes(new Date(), 15) }
         });
 
         return newUserAccount;
@@ -184,7 +186,7 @@ export class AuthService {
             verifiedAt: session.user.verifiedAt,
             image: session.user.image,
             sessionToken: sessionToken,
-            roles: session.user.userRoles.map(ur => ur.role.name as 'USER' | 'ADMIN' | 'SUPERADMIN'),
+            roles: session.user.userRoles.map(ur => ur.role.name as 'USER' | 'RESEARCHER' | 'RESPONDENT' | 'ADMIN' | 'ADMIN_QUALITY' | 'ADMIN_FINANCE'),
             createdAt: session.user.createdAt,
             updatedAt: session.user.updatedAt
         };
@@ -392,11 +394,23 @@ export class AuthService {
                     }
                 });
 
-                const findRole = await tx.role.findFirst({ where: { name: 'USER' } });
-                if (findRole === null) throw new NotFoundException('role is not found');
+                const defaultRoleNames = ['USER', 'RESEARCHER', 'RESPONDENT'] as const;
+                const roles = await tx.role.findMany({
+                    where: { name: { in: [...defaultRoleNames] } }
+                });
+                if (roles.length !== defaultRoleNames.length) throw new NotFoundException('default roles not found');
 
-                await tx.userRole.create({ data: { userId: newUser.id, roleId: findRole.id } });
-                return { userId: newUser.id, name: newUser.name, email: newUser.email, role: findRole.name };
+                await tx.userRole.createMany({
+                    data: roles.map(role => ({ userId: newUser.id, roleId: role.id }))
+                });
+
+                return {
+                    userId: newUser.id,
+                    name: newUser.name,
+                    email: newUser.email,
+                    role: 'USER',
+                    roles: roles.map(r => r.name)
+                };
             });
         }
 

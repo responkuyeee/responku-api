@@ -5,7 +5,7 @@ export type UserSessionData = {
     verifiedAt: Date | null;
     image: string | null;
     sessionToken: string;
-    roles: ('USER' | 'ADMIN' | 'SUPERADMIN')[];
+    roles: ('USER' | 'RESEARCHER' | 'RESPONDENT' | 'ADMIN' | 'ADMIN_QUALITY' | 'ADMIN_FINANCE')[];
     createdAt: Date;
     updatedAt: Date;
 };

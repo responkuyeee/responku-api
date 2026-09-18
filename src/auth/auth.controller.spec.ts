@@ -46,12 +46,32 @@ describe('AuthController', () => {
     });
 
     it('should call signUp', async () => {
-        const dto = { name: 'Test', email: 'test@example.com', password: 'password', providerId: 'CREDENTIALS' as const };
-        const result = { userId: '1', name: 'Test', email: 'test@example.com', role: 'USER' as const };
+        const dto = {
+            name: 'Test',
+            email: 'test@example.com',
+            password: 'password',
+            providerId: 'CREDENTIALS' as const,
+            phone: '081234567890',
+            age_declared_18plus: true
+        };
+        const result = {
+            userId: '1',
+            name: 'Test',
+            email: 'test@example.com',
+            role: 'USER',
+            roles: ['USER', 'RESEARCHER', 'RESPONDENT']
+        };
         vi.spyOn(authService, 'signUp').mockResolvedValue(result);
 
         const response = await controller.signUp(dto);
-        expect(authService.signUp).toHaveBeenCalledWith({ name: dto.name, email: dto.email, password: dto.password, providerId: dto.providerId });
+        expect(authService.signUp).toHaveBeenCalledWith({
+            name: dto.name,
+            email: dto.email,
+            password: dto.password,
+            providerId: dto.providerId,
+            phone: dto.phone,
+            age_declared_18plus: dto.age_declared_18plus
+        });
         expect(response).toEqual({ data: result, message: 'sign-up success' });
     });
 

@@ -30,7 +30,14 @@ export class AuthController {
     @ApiResponse({ status: 201, type: SignUpResDto, description: 'User successfully registered. A verification email is sent to the user.' })
     @ApiResponse({ status: 400, description: 'Bad Request.' })
     public async signUp(@Body() dto: SignUpReqDto) {
-        const data = await this.authService.signUp({ name: dto.name, email: dto.email, password: dto.password, providerId: dto.providerId });
+        const data = await this.authService.signUp({
+            name: dto.name,
+            email: dto.email,
+            password: dto.password,
+            providerId: dto.providerId,
+            phone: dto.phone,
+            age_declared_18plus: dto.age_declared_18plus
+        });
         return { data, message: 'sign-up success' };
     }
 

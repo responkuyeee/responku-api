@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service.js';
 import { dbService } from '../db/db.module.js';
-import { mailerService } from '../mailer/mailer.module.js';
+import { mailerService } from '../mailers/mailer.module.js';
 import { ConfigService } from '@nestjs/config';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import * as bcrypt from 'bcrypt';
@@ -31,8 +31,8 @@ describe('AuthService', () => {
             account: { findFirst: vi.fn(), create: vi.fn(), update: vi.fn() },
             session: { findFirst: vi.fn(), create: vi.fn(), delete: vi.fn() },
             verification: { findFirst: vi.fn(), create: vi.fn(), delete: vi.fn() },
-            role: { findFirst: vi.fn() },
-            userRole: { create: vi.fn() },
+            role: { findFirst: vi.fn(), findMany: vi.fn() },
+            userRole: { create: vi.fn(), createMany: vi.fn() },
             $transaction: vi.fn(cb => cb(dbMock))
         };
 
@@ -181,6 +181,42 @@ describe('AuthService', () => {
 
             expect(dbMock.session.delete).not.toHaveBeenCalled();
             expect(result).toBe(true);
+        });
+    });
+
+    describe('signUp', () => {
+        it('should assign USER, RESEARCHER, and RESPONDENT roles to new user', async () => {
+            dbMock.user.findFirst.mockResolvedValue(null);
+            dbMock.user.create.mockResolvedValue({ id: 'user-1', name: 'John Doe', email: 'john@example.com' });
+            dbMock.account.create.mockResolvedValue({ id: 'acc-1' });
+            dbMock.role.findMany.mockResolvedValue([
+                { id: 'role-1', name: 'USER' },
+                { id: 'role-2', name: 'RESEARCHER' },
+                { id: 'role-3', name: 'RESPONDENT' }
+            ]);
+            dbMock.userRole.createMany.mockResolvedValue({ count: 3 });
+            vi.mocked(generateOTP).mockReturnValue('123456');
+            vi.mocked(hashToken).mockReturnValue('hashed-otp');
+
+            const result = await service.signUp({
+                name: 'John Doe',
+                email: 'john@example.com',
+                password: 'Password123!',
+                providerId: 'CREDENTIALS'
+            });
+
+            expect(dbMock.role.findMany).toHaveBeenCalledWith({
+                where: { name: { in: ['USER', 'RESEARCHER', 'RESPONDENT'] } }
+            });
+            expect(dbMock.userRole.createMany).toHaveBeenCalledWith({
+                data: [
+                    { userId: 'user-1', roleId: 'role-1' },
+                    { userId: 'user-1', roleId: 'role-2' },
+                    { userId: 'user-1', roleId: 'role-3' }
+                ]
+            });
+            expect(result.roles).toEqual(['USER', 'RESEARCHER', 'RESPONDENT']);
+            expect(result.userId).toBe('user-1');
         });
     });
 });

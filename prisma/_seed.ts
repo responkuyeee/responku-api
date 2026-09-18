@@ -1,7 +1,7 @@
 import 'dotenv/config';
 
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
-import { PrismaClient } from '../src/generated/prisma/client.js';
+import { PrismaClient } from '../src/db/generated/prisma/client.js';
 
 const adapter = new PrismaMariaDb({
     host: process.env.DATABASE_HOST ?? 'localhost',
@@ -20,7 +20,7 @@ async function main() {
     console.log('🌱 Seeding database...');
 
     await prisma.role.createMany({
-        data: [{ name: 'USER' }, { name: 'ADMIN' }, { name: 'SUPERADMIN' }],
+        data: [{ name: 'USER' }, { name: 'RESEARCHER' }, { name: 'RESPONDENT' }, { name: 'ADMIN' }, { name: 'ADMIN_QUALITY' }, { name: 'ADMIN_FINANCE' }],
         skipDuplicates: true
     });
 

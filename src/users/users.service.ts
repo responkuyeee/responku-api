@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { type DbService, dbService } from '../db/db.module.js';
-import { UpdateUserProfileReqDto } from './dto/users.dto.js';
+import { DomicileVerifyDto, UpdateUserProfileReqDto } from './dto/users.dto.js';
 
 @Injectable()
 export class UsersService {
@@ -12,13 +12,9 @@ export class UsersService {
             include: { userProfile: true }
         });
 
-        if (!user) {
-            throw new NotFoundException('User not found');
-        }
-
+        if (!user) throw new NotFoundException('User not found');
         const { name, image, religionConsentAt, dataShareConsentAt, ...profileData } = dto;
 
-        // If either name or image is provided, update the User model
         if (name !== undefined || image !== undefined) {
             await this.db.user.update({
                 where: { id: userId },
@@ -63,5 +59,39 @@ export class UsersService {
         });
 
         return updatedUser;
+    }
+
+    async verifyDomicile(userId: string, dto: DomicileVerifyDto) {
+        const user = await this.db.user.findUnique({
+            where: { id: userId },
+            include: { userProfile: true }
+        });
+
+        if (!user) throw new NotFoundException('User not found');
+        if (!user.userProfile) throw new BadRequestException('User profile not found. Please complete profile first');
+
+        await this.db.userProfile.update({
+            where: { userId },
+            data: {
+                domicileLatitude: dto.lat.toString(),
+                domicileLongitude: dto.lng.toString(),
+                domicileVerifiedAt: new Date()
+            }
+        });
+
+        return this.db.user.findUnique({
+            where: { id: userId },
+            include: { userProfile: true }
+        });
+    }
+
+    async getUserProfile(userId: string) {
+        const user = await this.db.user.findUnique({
+            where: { id: userId },
+            include: { userProfile: true, qualityScore: true }
+        });
+
+        if (!user) throw new NotFoundException('User not found');
+        return user;
     }
 }

@@ -6,8 +6,11 @@ enum VerificationType {
 
 enum RoleName {
   USER
+  RESEARCHER
+  RESPONDENT
   ADMIN
-  SUPERADMIN
+  ADMIN_QUALITY
+  ADMIN_FINANCE
 }
 
 enum ProviderId {
@@ -31,6 +34,7 @@ model User {
   userRoles            UserRole[]      @relation("UserToUserRole")
   userProfile          UserProfile?    @relation("UserToUserProfile")
   tokenWallet          TokenWallet?    @relation("UserToTokenWallet")
+  qualityScore         QualityScore?   @relation("UserToQualityScore")
   research             Research[]      @relation("ResearcherToResearch")
   participations       Participation[] @relation("RespondentParticipations")
   reviewParticipations Participation[] @relation("AdminReviewedParticipations")
@@ -104,7 +108,7 @@ model Verification {
 model Role {
   id        String   @id @default(uuid())
   name      RoleName @unique
-  isActive  Boolean  @default(true) @map("is_active")
+  isActive  Int      @default(1) @map("is_active") @db.TinyInt
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 

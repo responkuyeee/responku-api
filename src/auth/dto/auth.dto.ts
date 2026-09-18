@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { Equals, IsBoolean, IsEmail, IsEnum, IsNotEmpty, IsString, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SignUpReqDto {
@@ -12,6 +12,16 @@ export class SignUpReqDto {
     @IsNotEmpty({ message: 'Email must not be empty' })
     @IsEmail({}, { message: 'Invalid email' })
     email: string;
+
+    @ApiProperty({ example: '081234567890', description: 'Nomor telepon pengguna' })
+    @IsString()
+    @IsNotEmpty({ message: 'Nomor telepon tidak boleh kosong' })
+    phone: string;
+
+    @ApiProperty({ example: true, description: 'Declaration that user is 18 years or older' })
+    @IsBoolean({ message: 'age_declared_18plus harus bernilai boolean' })
+    @Equals(true, { message: 'age_declared_18plus wajib bernilai true (umur >= 18 tahun)' })
+    age_declared_18plus: boolean;
 
     @ApiProperty({ example: 'Password123!', description: 'User password (min 8 chars)' })
     @IsNotEmpty({ message: 'Password must not be empty' })
@@ -73,6 +83,8 @@ export class SignUpDataDto {
     email: string;
     @ApiProperty({ example: 'USER', description: 'User role' })
     role: string;
+    @ApiProperty({ example: ['USER', 'RESEARCHER', 'RESPONDENT'], isArray: true, description: 'User roles' })
+    roles: string[];
 }
 
 export class SignUpResDto {

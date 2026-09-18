@@ -1,6 +1,6 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
-import { GenderType } from '../../generated/prisma/enums.js';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsDateString, IsEnum, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
+import { GenderType } from '../../db/generated/prisma/enums.js';
 
 export class UpdateUserProfileReqDto {
     @ApiPropertyOptional({ example: 'John Doe', description: 'User full name' })
@@ -62,4 +62,18 @@ export class UpdateUserProfileReqDto {
     @IsOptional()
     @IsDateString()
     dataShareConsentAt?: string;
+}
+
+export class DomicileVerifyDto {
+    @ApiProperty({ example: -6.2088, description: 'Latitude coordinate' })
+    @IsNumber({}, { message: 'Latitude harus berupa angka numerik' })
+    @Min(-90, { message: 'Latitude minimal -90' })
+    @Max(90, { message: 'Latitude maksimal 90' })
+    lat: number;
+
+    @ApiProperty({ example: 106.8456, description: 'Longitude coordinate' })
+    @IsNumber({}, { message: 'Longitude harus berupa angka numerik' })
+    @Min(-180, { message: 'Longitude minimal -180' })
+    @Max(180, { message: 'Longitude maksimal 180' })
+    lng: number;
 }
